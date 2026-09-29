@@ -56,21 +56,16 @@ button{
   border-radius:16px;
   margin-bottom:18px
 }
-.hero h1{
-  margin:0 0 7px
-}
-.hero p{
-  margin:0;
-  color:#ddd
-}
+.hero h1{margin:0 0 7px}
+.hero p{margin:0;color:#ddd}
+
 .tools{
   display:flex;
   gap:8px;
   margin:15px 0;
   flex-wrap:wrap
 }
-.tools input,
-.tools select{
+.tools input,.tools select{
   padding:12px;
   border:1px solid #ddd;
   border-radius:9px;
@@ -94,9 +89,7 @@ button{
   object-fit:cover;
   background:#eee
 }
-.info{
-  padding:12px
-}
+.info{padding:12px}
 .cat{
   font-size:12px;
   color:#777
@@ -142,12 +135,8 @@ button{
   padding:20px;
   border-radius:16px
 }
-.box h2{
-  margin-top:0
-}
-.box input,
-.box textarea,
-.box select{
+.box h2{margin-top:0}
+.box input,.box textarea,.box select{
   width:100%;
   padding:11px;
   margin:6px 0 10px;
@@ -158,9 +147,7 @@ button{
   display:flex;
   gap:8px
 }
-.row>*{
-  flex:1
-}
+.row>*{flex:1}
 .close{
   float:right;
   background:#eee
@@ -178,23 +165,23 @@ button{
   border-radius:14px;
   margin-bottom:15px
 }
-.adminbar button{
-  margin:4px 3px
-}
+.adminbar button{margin:4px 3px}
 .danger{
   background:#d60000;
   color:white
 }
-.secondary{
-  background:#eee
-}
+.secondary{background:#eee}
 .small{
   font-size:12px;
   color:#777
 }
-.cart{
-  position:relative
+.status{
+  margin-top:8px;
+  padding:8px;
+  background:#f5f5f5;
+  border-radius:8px
 }
+.cart{position:relative}
 .count{
   background:#ff0055;
   color:white;
@@ -210,6 +197,7 @@ button{
   .pic{height:160px}
   .grid{grid-template-columns:repeat(2,1fr)}
   .container{padding:12px}
+  .row{flex-direction:column;gap:0}
 }
 </style>
 </head>
@@ -234,7 +222,6 @@ button{
 </div>
 </header>
 
-
 <main class="container">
 
 <section class="hero">
@@ -242,12 +229,17 @@ button{
 <p>Shop Smart. Shop Trusted.</p>
 </section>
 
-
 <!-- ADMIN PANEL -->
 
 <div id="adminbar" class="adminbar">
 
 <b>⚙️ Admin Panel</b>
+
+<p class="small" id="loginInfo"></p>
+
+<p class="small status" id="firebaseStatus">
+Connecting to Firebase...
+</p>
 
 <br>
 
@@ -255,24 +247,23 @@ button{
 ➕ Add Product
 </button>
 
-<button class="secondary" onclick="exportProducts()">
-⬇️ Backup
+<button class="secondary" onclick="seedDemo()">
+📦 Demo Products
 </button>
 
-<button class="secondary" onclick="importProducts()">
-⬆️ Restore
+<button class="secondary" onclick="exportProducts()">
+⬇️ Backup
 </button>
 
 <button class="danger" onclick="clearProducts()">
 Delete All
 </button>
 
-<p class="small">
-Products are saved in this browser.
-</p>
+<button class="secondary" onclick="logout()">
+🚪 Logout
+</button>
 
 </div>
-
 
 <!-- SEARCH -->
 
@@ -290,13 +281,11 @@ oninput="render()"
 
 </div>
 
-
 <!-- PRODUCTS -->
 
 <div id="grid" class="grid"></div>
 
 </main>
-
 
 <!-- ADMIN LOGIN -->
 
@@ -311,12 +300,20 @@ onclick="closeModal('adminModal')">
 
 <h2>🔐 Admin Login</h2>
 
-<p>Admin password enter karo.</p>
+<p>Firebase Admin Email aur Password enter karo.</p>
+
+<input
+id="adminEmail"
+type="email"
+placeholder="Admin email"
+autocomplete="username"
+>
 
 <input
 id="adminPass"
 type="password"
 placeholder="Password"
+autocomplete="current-password"
 >
 
 <button class="save" onclick="login()">
@@ -324,12 +321,11 @@ Login
 </button>
 
 <p class="small">
-Default password: <b>1234</b>
+Firebase Authentication mein banaya hua email/password use karo.
 </p>
 
 </div>
 </div>
-
 
 <!-- ADD PRODUCT -->
 
@@ -367,9 +363,7 @@ placeholder="Original price ₹"
 
 </div>
 
-
 <select id="pCat">
-
 <option>Fashion</option>
 <option>Mobile Accessories</option>
 <option>Home & Kitchen</option>
@@ -382,15 +376,12 @@ placeholder="Original price ₹"
 <option>Fitness</option>
 <option>Daily Use</option>
 <option>Other</option>
-
 </select>
-
 
 <input
 id="pImage"
 placeholder="Product image URL"
 >
-
 
 <textarea
 id="pDesc"
@@ -398,14 +389,12 @@ rows="4"
 placeholder="Product description"
 ></textarea>
 
-
 <button class="save" onclick="saveProduct()">
 💾 Save Product
 </button>
 
 </div>
 </div>
-
 
 <!-- CART -->
 
@@ -430,27 +419,102 @@ onclick="closeModal('cartModal')">
 </div>
 
 
-<script>
+<script type="module">
 
-const KEY="tsm_products_v1";
-const CART="tsm_cart_v1";
+/* =========================
+   FIREBASE CONFIG
+========================= */
 
-let products=
-JSON.parse(localStorage.getItem(KEY)||"[]");
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 
-let cart=
-JSON.parse(localStorage.getItem(CART)||"[]");
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc
+}
+from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCoQG406ig9BLSiXcFjn_hqUnrwFwW2QnE",
+
+  authDomain:
+  "tsm-trusted-selling-mart-x.firebaseapp.com",
+
+  projectId:
+  "tsm-trusted-selling-mart-x",
+
+  storageBucket:
+  "tsm-trusted-selling-mart-x.firebasestorage.app",
+
+  messagingSenderId:
+  "322152069209",
+
+  appId:
+  "1:322152069209:web:28251c27245aaf52241948"
+
+};
+
+
+/* =========================
+   FIREBASE START
+========================= */
+
+const app =
+initializeApp(firebaseConfig);
+
+const auth =
+getAuth(app);
+
+const db =
+getFirestore(app);
+
+const productsRef =
+collection(db,"products");
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+const CART =
+"tsm_cart_v1";
+
+let products=[];
+
+let cart =
+JSON.parse(
+localStorage.getItem(CART)||"[]"
+);
 
 let editId=null;
+
 let logged=false;
 
+let loading=false;
 
-/* DEMO PRODUCTS */
+
+/* =========================
+   DEMO PRODUCTS
+========================= */
 
 const demo=[
 
 {
-id:1,
 name:"Stylish Casual T-Shirt",
 price:399,
 old:799,
@@ -460,7 +524,6 @@ desc:"Comfortable everyday T-Shirt."
 },
 
 {
-id:2,
 name:"Wireless Earbuds",
 price:699,
 old:1499,
@@ -470,7 +533,6 @@ desc:"Compact wireless earbuds."
 },
 
 {
-id:3,
 name:"Kitchen Storage Set",
 price:499,
 old:999,
@@ -480,7 +542,6 @@ desc:"Useful kitchen storage containers."
 },
 
 {
-id:4,
 name:"Fashion Handbag",
 price:599,
 old:1199,
@@ -490,7 +551,6 @@ desc:"Stylish daily-use handbag."
 },
 
 {
-id:5,
 name:"Classic Watch",
 price:499,
 old:999,
@@ -500,7 +560,6 @@ desc:"Classic everyday watch."
 },
 
 {
-id:6,
 name:"Kids Toy Car",
 price:349,
 old:699,
@@ -512,28 +571,29 @@ desc:"Fun toy for kids."
 ];
 
 
-if(!products.length){
+/* =========================
+   SECURITY TEXT ESCAPE
+========================= */
 
-products=demo;
+function esc(s){
 
-save();
+return String(s ?? "")
+.replace(/[&<>"']/g,m=>({
+
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+
+}[m]));
 
 }
 
 
-/* SAVE */
-
-function save(){
-
-localStorage.setItem(
-KEY,
-JSON.stringify(products)
-);
-
-}
-
-
-/* SAVE CART */
+/* =========================
+   CART
+========================= */
 
 function saveCart(){
 
@@ -549,343 +609,12 @@ document.getElementById(
 }
 
 
-/* SHOW PRODUCTS */
+window.addCart=function(id){
 
-function render(){
-
-let q=
-document.getElementById("search")
-.value
-.toLowerCase();
-
-let selected=
-document.getElementById("category")
-.value;
-
-
-let cats=
-[...new Set(products.map(p=>p.cat))];
-
-
-document.getElementById("category").innerHTML=
-'<option value="">All Categories</option>'+
-cats.map(
-x=>`<option>${x}</option>`
-).join("");
-
-
-document.getElementById("category").value=
-selected;
-
-
-let list=
-products.filter(p=>
-
-(!q ||
-p.name.toLowerCase().includes(q))
-
-&&
-
-(!selected ||
-p.cat===selected)
-
-);
-
-
-document.getElementById("grid").innerHTML=
-
-list.length
-
-?
-
-list.map(p=>`
-
-<div class="card">
-
-<img
-class="pic"
-src="${p.image || 'https://via.placeholder.com/600x500?text=TSM+Product'}"
-onerror="this.src='https://via.placeholder.com/600x500?text=TSM+Product'"
->
-
-<div class="info">
-
-<div class="cat">
-${p.cat}
-</div>
-
-<div class="name">
-${esc(p.name)}
-</div>
-
-<div class="price">
-₹${p.price}
-
-<span class="old">
-₹${p.old || ""}
-</span>
-
-</div>
-
-<p>
-${esc(p.desc || "")}
-</p>
-
-<button onclick="addCart(${p.id})">
-🛒 Add to Cart
-</button>
-
-${logged ? `
-
-<button
-class="secondary"
-onclick="editProduct(${p.id})">
-✏️ Edit
-</button>
-
-<button
-class="danger"
-onclick="deleteProduct(${p.id})">
-🗑️ Delete
-</button>
-
-` : ""}
-
-</div>
-
-</div>
-
-`).join("")
-
-:
-
-'<div class="empty">No products found.</div>';
-
-}
-
-
-/* SECURITY TEXT */
-
-function esc(s){
-
-return String(s).replace(
-/[&<>"']/g,
-
-m=>({
-
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#039;'
-
-}[m])
-
-);
-
-}
-
-
-/* ADMIN */
-
-function openAdmin(){
-
-document.getElementById(
-"adminModal"
-).style.display="block";
-
-}
-
-
-function login(){
-
-if(
-document.getElementById("adminPass").value
-==="1234"
-){
-
-logged=true;
-
-closeModal("adminModal");
-
-document.getElementById(
-"adminbar"
-).style.display="block";
-
-render();
-
-}else{
-
-alert("Wrong password");
-
-}
-
-}
-
-
-/* ADD PRODUCT */
-
-function openProduct(id=null){
-
-editId=id;
-
-document.getElementById(
-"formTitle"
-).textContent=
-id
-?"✏️ Edit Product"
-:"➕ Add Product";
-
-
-[
-"pName",
-"pPrice",
-"pOld",
-"pImage",
-"pDesc"
-].forEach(
-x=>document.getElementById(x).value=""
-);
-
-
-let p=
+const p =
 products.find(x=>x.id===id);
 
-
-if(p){
-
-pName.value=p.name;
-
-pPrice.value=p.price;
-
-pOld.value=p.old||"";
-
-pCat.value=p.cat;
-
-pImage.value=p.image||"";
-
-pDesc.value=p.desc||"";
-
-}
-
-
-document.getElementById(
-"productModal"
-).style.display="block";
-
-}
-
-
-/* SAVE PRODUCT */
-
-function saveProduct(){
-
-let p={
-
-id:editId || Date.now(),
-
-name:pName.value.trim(),
-
-price:+pPrice.value,
-
-old:+pOld.value||0,
-
-cat:pCat.value,
-
-image:pImage.value.trim(),
-
-desc:pDesc.value.trim()
-
-};
-
-
-if(!p.name || !p.price){
-
-alert(
-"Product name aur selling price required hai."
-);
-
-return;
-
-}
-
-
-if(editId){
-
-products=
-products.map(
-x=>x.id===editId?p:x
-);
-
-}else{
-
-products.unshift(p);
-
-}
-
-
-save();
-
-closeModal("productModal");
-
-render();
-
-alert("✅ Product saved!");
-
-}
-
-
-/* EDIT */
-
-function editProduct(id){
-
-openProduct(id);
-
-}
-
-
-/* DELETE */
-
-function deleteProduct(id){
-
-if(confirm("Delete this product?")){
-
-products=
-products.filter(
-p=>p.id!==id
-);
-
-save();
-
-render();
-
-}
-
-}
-
-
-/* DELETE ALL */
-
-function clearProducts(){
-
-if(confirm(
-"Delete ALL products?"
-)){
-
-products=[];
-
-save();
-
-render();
-
-}
-
-}
-
-
-/* CART */
-
-function addCart(id){
+if(!p)return;
 
 cart.push(id);
 
@@ -895,14 +624,16 @@ alert(
 "✅ Product cart mein add ho gaya!"
 );
 
-}
+};
 
 
-function openCart(){
+window.openCart=function(){
 
-let items=
+const items =
 cart.map(
-id=>products.find(p=>p.id===id)
+id=>products.find(
+p=>p.id===id
+)
 ).filter(Boolean);
 
 
@@ -918,7 +649,7 @@ items.map(p=>`
 
 <p>
 <b>${esc(p.name)}</b>
-— ₹${p.price}
+— ₹${Number(p.price||0)}
 </p>
 
 `).join("")
@@ -932,136 +663,894 @@ document.getElementById(
 "cartModal"
 ).style.display="block";
 
+};
+
+
+/* =========================
+   LOAD PRODUCTS
+========================= */
+
+async function loadProducts(){
+
+loading=true;
+
+setStatus(
+"Loading products..."
+);
+
+try{
+
+const snap =
+await getDocs(productsRef);
+
+products =
+snap.docs.map(
+d=>({
+
+id:d.id,
+...d.data()
+
+})
+);
+
+render();
+
+setStatus(
+
+products.length
+
+?
+
+`${products.length} product(s) online`
+
+:
+
+"No products yet"
+
+);
+
+}
+
+catch(err){
+
+console.error(err);
+
+setStatus(
+"Firebase error"
+);
+
+alert(
+"Firebase se products load nahi ho rahe. Firestore Rules check karo."
+);
+
+}
+
+finally{
+
+loading=false;
+
+}
+
 }
 
 
-/* WHATSAPP */
+/* =========================
+   STATUS
+========================= */
 
-function orderCart(){
+function setStatus(message){
 
-let items=
-cart.map(
-id=>products.find(p=>p.id===id)
-).filter(Boolean);
+const el =
+document.getElementById(
+"firebaseStatus"
+);
+
+if(el)
+el.textContent=message;
+
+}
 
 
-if(!items.length){
+/* =========================
+   RENDER
+========================= */
 
-alert("Cart is empty");
+function render(){
+
+const q =
+(
+document.getElementById(
+"search"
+).value || ""
+).toLowerCase();
+
+
+const selected =
+document.getElementById(
+"category"
+).value;
+
+
+const cats =
+[
+...new Set(
+products
+.map(p=>p.cat)
+.filter(Boolean)
+)
+];
+
+
+document.getElementById(
+"category"
+).innerHTML=
+
+'<option value="">All Categories</option>'+
+
+cats.map(
+x=>`
+
+<option value="${esc(x)}">
+${esc(x)}
+</option>
+
+`
+).join("");
+
+
+document.getElementById(
+"category"
+).value=selected;
+
+
+const list =
+products.filter(p=>
+
+(
+!q ||
+
+String(p.name||"")
+.toLowerCase()
+.includes(q)
+
+)
+
+&&
+
+(
+!selected ||
+
+p.cat===selected
+)
+
+);
+
+
+document.getElementById(
+"grid"
+).innerHTML=
+
+list.length
+
+?
+
+list.map(p=>`
+
+<div class="card">
+
+<img
+class="pic"
+
+src="${
+esc(
+p.image ||
+"https://via.placeholder.com/600x500?text=TSM+Product"
+)
+}"
+
+onerror="
+this.src='https://via.placeholder.com/600x500?text=TSM+Product'
+">
+
+<div class="info">
+
+<div class="cat">
+${esc(p.cat)}
+</div>
+
+<div class="name">
+${esc(p.name)}
+</div>
+
+<div class="price">
+
+₹${Number(p.price||0)}
+
+<span class="old">
+
+₹${p.old ? Number(p.old) : ""}
+
+</span>
+
+</div>
+
+<p>
+${esc(p.desc||"")}
+</p>
+
+
+<button
+onclick="addCart('${esc(p.id)}')">
+
+🛒 Add to Cart
+
+</button>
+
+
+${logged ? `
+
+<button
+class="secondary"
+onclick="editProduct('${esc(p.id)}')">
+
+✏️ Edit
+
+</button>
+
+
+<button
+class="danger"
+onclick="deleteProduct('${esc(p.id)}')">
+
+🗑️ Delete
+
+</button>
+
+`:""}
+
+
+</div>
+
+</div>
+
+`).join("")
+
+:
+
+`
+
+<div class="empty">
+
+${
+loading
+?
+"Loading products..."
+:
+"No products found."
+}
+
+</div>
+
+`;
+
+}
+
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+
+window.openAdmin=function(){
+
+document.getElementById(
+"adminModal"
+).style.display="block";
+
+};
+
+
+window.login=async function(){
+
+const email =
+document.getElementById(
+"adminEmail"
+).value.trim();
+
+
+const password =
+document.getElementById(
+"adminPass"
+).value;
+
+
+if(!email || !password){
+
+alert(
+"Email aur password dono bharo."
+);
 
 return;
 
 }
 
 
-let msg=
+try{
+
+await signInWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+}
+
+catch(err){
+
+console.error(err);
+
+alert(
+"Login failed: Email/password check karo."
+);
+
+}
+
+};
+
+
+window.logout=async function(){
+
+await signOut(auth);
+
+};
+
+
+onAuthStateChanged(
+auth,
+user=>{
+
+logged=!!user;
+
+
+const bar =
+document.getElementById(
+"adminbar"
+);
+
+
+const loginText =
+document.getElementById(
+"loginInfo"
+);
+
+
+if(user){
+
+bar.style.display="block";
+
+
+loginText.textContent =
+"Logged in: "+user.email;
+
+
+document.getElementById(
+"adminModal"
+).style.display="none";
+
+}
+
+else{
+
+bar.style.display="none";
+
+loginText.textContent="";
+
+}
+
+
+render();
+
+});
+
+
+/* =========================
+   ADD / EDIT PRODUCT
+========================= */
+
+window.openProduct=function(id=null){
+
+if(!logged){
+
+alert(
+"Pehle Admin Login karo."
+);
+
+return;
+
+}
+
+
+editId=id;
+
+
+document.getElementById(
+"formTitle"
+).textContent=
+
+id
+?
+"✏️ Edit Product"
+:
+"➕ Add Product";
+
+
+[
+"pName",
+"pPrice",
+"pOld",
+"pImage",
+"pDesc"
+].forEach(
+x=>
+document.getElementById(x).value=""
+);
+
+
+if(id){
+
+const p =
+products.find(
+x=>x.id===id
+);
+
+
+if(p){
+
+pName.value=p.name||"";
+
+pPrice.value=p.price||"";
+
+pOld.value=p.old||"";
+
+pCat.value=
+p.cat||"Other";
+
+pImage.value=
+p.image||"";
+
+pDesc.value=
+p.desc||"";
+
+}
+
+}
+
+
+document.getElementById(
+"productModal"
+).style.display="block";
+
+};
+
+
+window.saveProduct=async function(){
+
+if(!logged){
+
+alert(
+"Pehle Admin Login karo."
+);
+
+return;
+
+}
+
+
+const p={
+
+name:
+pName.value.trim(),
+
+price:
+Number(pPrice.value),
+
+old:
+Number(pOld.value)||0,
+
+cat:
+pCat.value,
+
+image:
+pImage.value.trim(),
+
+desc:
+pDesc.value.trim(),
+
+updatedAt:
+new Date().toISOString()
+
+};
+
+
+if(!p.name || !p.price){
+
+alert(
+"Product name aur selling price required hai."
+);
+
+return;
+
+}
+
+
+try{
+
+if(editId){
+
+await updateDoc(
+doc(
+db,
+"products",
+editId
+),
+p
+);
+
+alert(
+"✅ Product updated online!"
+);
+
+}
+
+else{
+
+await addDoc(
+productsRef,
+p
+);
+
+alert(
+"✅ Product saved online!"
+);
+
+}
+
+
+editId=null;
+
+closeModal(
+"productModal"
+);
+
+await loadProducts();
+
+}
+
+catch(err){
+
+console.error(err);
+
+alert(
+"Product save nahi hua: "+
+(err.message||"Firestore error")
+);
+
+}
+
+};
+
+
+window.editProduct=function(id){
+
+openProduct(id);
+
+};
+
+
+/* =========================
+   DELETE
+========================= */
+
+window.deleteProduct=
+async function(id){
+
+if(!logged)return;
+
+
+if(
+!confirm(
+"Delete this product?"
+)
+)return;
+
+
+try{
+
+await deleteDoc(
+doc(
+db,
+"products",
+id
+)
+);
+
+await loadProducts();
+
+alert(
+"🗑️ Product deleted."
+);
+
+}
+
+catch(err){
+
+console.error(err);
+
+alert(
+"Delete nahi hua."
+);
+
+}
+
+};
+
+
+/* =========================
+   DELETE ALL
+========================= */
+
+window.clearProducts=
+async function(){
+
+if(!logged)return;
+
+
+if(!products.length){
+
+alert(
+"Products already empty."
+);
+
+return;
+
+}
+
+
+if(
+!confirm(
+"Delete ALL products?"
+)
+)return;
+
+
+try{
+
+await Promise.all(
+
+products.map(
+p=>
+deleteDoc(
+doc(
+db,
+"products",
+p.id
+)
+)
+
+)
+
+);
+
+await loadProducts();
+
+alert(
+"All products deleted."
+);
+
+}
+
+catch(err){
+
+console.error(err);
+
+alert(
+"Delete All mein error aaya."
+);
+
+}
+
+};
+
+
+/* =========================
+   DEMO PRODUCTS
+========================= */
+
+window.seedDemo=
+async function(){
+
+if(!logged){
+
+alert(
+"Pehle Admin Login karo."
+);
+
+return;
+
+}
+
+
+if(
+products.length &&
+
+!confirm(
+"Database mein products already hain. Demo products add karne hain?"
+)
+
+)return;
+
+
+try{
+
+for(
+const p of demo
+){
+
+await addDoc(
+productsRef,
+{
+...p,
+createdAt:
+new Date().toISOString()
+}
+);
+
+}
+
+
+await loadProducts();
+
+alert(
+"✅ Demo products online add ho gaye."
+);
+
+}
+
+catch(err){
+
+console.error(err);
+
+alert(
+"Demo products add nahi hue."
+);
+
+}
+
+};
+
+
+/* =========================
+   WHATSAPP ORDER
+========================= */
+
+window.orderCart=function(){
+
+const items =
+cart.map(
+id=>products.find(
+p=>p.id===id
+)
+).filter(Boolean);
+
+
+if(!items.length){
+
+alert(
+"Cart is empty"
+);
+
+return;
+
+}
+
+
+const msg=
+
 "TSM Order\n\n"+
 
 items.map(
-p=>`${p.name} - ₹${p.price}`
+p=>
+`${p.name} - ₹${p.price}`
 ).join("\n")+
 
 "\n\nPlease send your Name, Mobile and Address.";
 
 
 window.open(
+
 "https://wa.me/?text="+
+
 encodeURIComponent(msg),
+
 "_blank"
+
 );
 
-}
+};
 
 
-/* CLOSE */
+/* =========================
+   CLOSE MODAL
+========================= */
 
-function closeModal(id){
+window.closeModal=
+function(id){
 
-document.getElementById(id)
-.style.display="none";
+document.getElementById(
+id
+).style.display="none";
 
-}
+};
 
 
-/* BACKUP */
+/* =========================
+   BACKUP
+========================= */
 
-function exportProducts(){
+window.exportProducts=
+function(){
 
-let blob=
+const blob =
 new Blob(
-[JSON.stringify(products,null,2)],
-{type:"application/json"}
+
+[
+JSON.stringify(
+products,
+null,
+2
+)
+],
+
+{
+type:
+"application/json"
+}
+
 );
 
-let a=
+
+const a =
 document.createElement("a");
 
-a.href=
-URL.createObjectURL(blob);
 
-a.download=
+a.href =
+URL.createObjectURL(
+blob
+);
+
+
+a.download =
 "tsm-products-backup.json";
+
 
 a.click();
 
-}
 
-
-/* RESTORE */
-
-function importProducts(){
-
-let i=
-document.createElement("input");
-
-i.type="file";
-
-i.accept=".json";
-
-
-i.onchange=e=>{
-
-let r=
-new FileReader();
-
-r.onload=()=>{
-
-try{
-
-products=
-JSON.parse(r.result);
-
-save();
-
-render();
-
-alert(
-"✅ Products restored!"
-);
-
-}catch{
-
-alert(
-"Invalid backup file"
-);
-
-}
-
-};
-
-r.readAsText(
-e.target.files[0]
+URL.revokeObjectURL(
+a.href
 );
 
 };
 
-i.click();
 
-}
-
+/* =========================
+   START
+========================= */
 
 saveCart();
 
-render();
+loadProducts();
 
-</scr
+</script>
+
+</body>
+  </html>
