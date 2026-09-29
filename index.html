@@ -2,45 +2,214 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TSM – Trusted Selling Mart X</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSM - Trusted Selling Mart X</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#f5f5f5;color:#111}
-header{background:#111;color:white;padding:16px;text-align:center;position:sticky;top:0;z-index:5}
-.logo{font-size:23px;font-weight:bold}
-.logo span{color:#ff0055}
-.search{margin:12px auto 0;max-width:600px;display:flex}
-.search input{flex:1;padding:12px;border:0;border-radius:8px 0 0 8px}
-.search button{background:#ff0055;color:white;border:0;padding:12px 18px}
-.hero{background:linear-gradient(120deg,#111,#333);color:white;margin:15px auto;padding:35px 20px;max-width:1100px;border-radius:15px}
-.hero h1{font-size:38px;margin:10px 0}
-.hero p{color:#ddd}
-.btn{background:#ff0055;color:white;border:0;padding:12px 18px;border-radius:8px;font-weight:bold}
-section{max-width:1100px;margin:25px auto;padding:0 15px}
-h2{margin-bottom:15px}
-.categories,.products{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
-.category,.card{background:white;border-radius:12px;padding:15px;text-align:center;box-shadow:0 2px 10px #0001}
-.category{cursor:pointer}
-.icon{font-size:42px}
-.card{padding:0;overflow:hidden;text-align:left}
-.photo{height:170px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:65px}
-.info{padding:13px}
-.price{font-size:20px;font-weight:bold;margin:8px 0}
-.old{text-decoration:line-through;color:#999;font-size:13px}
-.add{width:100%;background:#111;color:white;border:0;padding:11px;border-radius:7px}
-.cart{position:fixed;right:15px;bottom:15px;background:#ff0055;color:white;border:0;border-radius:50px;padding:15px 20px;font-weight:bold;z-index:10}
-.modal{display:none;position:fixed;inset:0;background:#0009;z-index:20;align-items:flex-end}
-.modal.show{display:flex}
-.box{background:white;width:100%;max-width:550px;margin:auto;padding:20px;border-radius:18px 18px 0 0;max-height:90vh;overflow:auto}
-input,textarea,select{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ddd;border-radius:8px}
-.close{float:right;border:0;background:#eee;padding:8px;border-radius:50%}
-.order{width:100%;background:#ff0055;color:white;border:0;padding:13px;border-radius:8px;font-weight:bold}
-footer{background:#111;color:#ddd;text-align:center;padding:30px;margin-top:35px}
-@media(max-width:700px){
-.categories,.products{grid-template-columns:repeat(2,1fr)}
-.hero h1{font-size:30px}
-.photo{height:140px}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f5f6f8;
+  color:#171717
+}
+header{
+  background:#111;
+  color:white;
+  padding:14px 16px;
+  position:sticky;
+  top:0;
+  z-index:10
+}
+.top{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+.logo{
+  font-size:20px;
+  font-weight:bold;
+  flex:1
+}
+button{
+  border:0;
+  border-radius:9px;
+  padding:10px 14px;
+  font-weight:bold;
+  cursor:pointer
+}
+.admin{
+  background:#ff0055;
+  color:white
+}
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:18px
+}
+.hero{
+  background:linear-gradient(135deg,#111,#333);
+  color:white;
+  padding:25px;
+  border-radius:16px;
+  margin-bottom:18px
+}
+.hero h1{
+  margin:0 0 7px
+}
+.hero p{
+  margin:0;
+  color:#ddd
+}
+.tools{
+  display:flex;
+  gap:8px;
+  margin:15px 0;
+  flex-wrap:wrap
+}
+.tools input,
+.tools select{
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:9px;
+  flex:1;
+  min-width:180px
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:14px
+}
+.card{
+  background:white;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 2px 10px #0002
+}
+.pic{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  background:#eee
+}
+.info{
+  padding:12px
+}
+.cat{
+  font-size:12px;
+  color:#777
+}
+.name{
+  font-weight:bold;
+  margin:5px 0
+}
+.price{
+  font-size:19px;
+  font-weight:bold
+}
+.old{
+  text-decoration:line-through;
+  color:#999;
+  font-size:13px;
+  margin-left:5px
+}
+.card button{
+  width:100%;
+  margin-top:9px;
+  background:#111;
+  color:white
+}
+.empty{
+  text-align:center;
+  padding:45px;
+  color:#777
+}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#0008;
+  z-index:20;
+  padding:18px;
+  overflow:auto
+}
+.box{
+  background:white;
+  max-width:520px;
+  margin:30px auto;
+  padding:20px;
+  border-radius:16px
+}
+.box h2{
+  margin-top:0
+}
+.box input,
+.box textarea,
+.box select{
+  width:100%;
+  padding:11px;
+  margin:6px 0 10px;
+  border:1px solid #ccc;
+  border-radius:8px
+}
+.row{
+  display:flex;
+  gap:8px
+}
+.row>*{
+  flex:1
+}
+.close{
+  float:right;
+  background:#eee
+}
+.save{
+  background:#ff0055;
+  color:white;
+  width:100%;
+  margin-top:5px
+}
+.adminbar{
+  display:none;
+  background:white;
+  padding:15px;
+  border-radius:14px;
+  margin-bottom:15px
+}
+.adminbar button{
+  margin:4px 3px
+}
+.danger{
+  background:#d60000;
+  color:white
+}
+.secondary{
+  background:#eee
+}
+.small{
+  font-size:12px;
+  color:#777
+}
+.cart{
+  position:relative
+}
+.count{
+  background:#ff0055;
+  color:white;
+  border-radius:50%;
+  font-size:11px;
+  padding:2px 6px;
+  position:absolute;
+  top:-7px;
+  right:-7px
+}
+@media(max-width:600px){
+  .logo{font-size:17px}
+  .pic{height:160px}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .container{padding:12px}
 }
 </style>
 </head>
@@ -48,13 +217,854 @@ footer{background:#111;color:#ddd;text-align:center;padding:30px;margin-top:35px
 <body>
 
 <header>
-<div class="logo">TSM <span>•</span> Trusted Selling Mart X</div>
-<div class="search">
-<input id="search" placeholder="Search products..." oninput="showProducts()">
-<button onclick="showProducts()">🔍</button>
+<div class="top">
+
+<div class="logo">
+🛍️ TSM • Trusted Selling Mart X
+</div>
+
+<button class="admin" onclick="openAdmin()">
+⚙️ Admin
+</button>
+
+<button class="cart" onclick="openCart()">
+🛒 <span id="cartCount" class="count">0</span>
+</button>
+
 </div>
 </header>
 
-<div class="hero">
-<div>WELCOME TO TSM</div>
-<h1>Shop Smart. Shop Trusted
+
+<main class="container">
+
+<section class="hero">
+<h1>WELCOME TO TSM</h1>
+<p>Shop Smart. Shop Trusted.</p>
+</section>
+
+
+<!-- ADMIN PANEL -->
+
+<div id="adminbar" class="adminbar">
+
+<b>⚙️ Admin Panel</b>
+
+<br>
+
+<button class="admin" onclick="openProduct()">
+➕ Add Product
+</button>
+
+<button class="secondary" onclick="exportProducts()">
+⬇️ Backup
+</button>
+
+<button class="secondary" onclick="importProducts()">
+⬆️ Restore
+</button>
+
+<button class="danger" onclick="clearProducts()">
+Delete All
+</button>
+
+<p class="small">
+Products are saved in this browser.
+</p>
+
+</div>
+
+
+<!-- SEARCH -->
+
+<div class="tools">
+
+<input
+id="search"
+placeholder="🔎 Search products..."
+oninput="render()"
+>
+
+<select id="category" onchange="render()">
+<option value="">All Categories</option>
+</select>
+
+</div>
+
+
+<!-- PRODUCTS -->
+
+<div id="grid" class="grid"></div>
+
+</main>
+
+
+<!-- ADMIN LOGIN -->
+
+<div id="adminModal" class="modal">
+
+<div class="box">
+
+<button class="close"
+onclick="closeModal('adminModal')">
+✕
+</button>
+
+<h2>🔐 Admin Login</h2>
+
+<p>Admin password enter karo.</p>
+
+<input
+id="adminPass"
+type="password"
+placeholder="Password"
+>
+
+<button class="save" onclick="login()">
+Login
+</button>
+
+<p class="small">
+Default password: <b>1234</b>
+</p>
+
+</div>
+</div>
+
+
+<!-- ADD PRODUCT -->
+
+<div id="productModal" class="modal">
+
+<div class="box">
+
+<button class="close"
+onclick="closeModal('productModal')">
+✕
+</button>
+
+<h2 id="formTitle">
+➕ Add Product
+</h2>
+
+<input
+id="pName"
+placeholder="Product name"
+>
+
+<div class="row">
+
+<input
+id="pPrice"
+type="number"
+placeholder="Selling price ₹"
+>
+
+<input
+id="pOld"
+type="number"
+placeholder="Original price ₹"
+>
+
+</div>
+
+
+<select id="pCat">
+
+<option>Fashion</option>
+<option>Mobile Accessories</option>
+<option>Home & Kitchen</option>
+<option>Beauty</option>
+<option>Kids & Toys</option>
+<option>Bags</option>
+<option>Watches</option>
+<option>Electronics</option>
+<option>Home Decor</option>
+<option>Fitness</option>
+<option>Daily Use</option>
+<option>Other</option>
+
+</select>
+
+
+<input
+id="pImage"
+placeholder="Product image URL"
+>
+
+
+<textarea
+id="pDesc"
+rows="4"
+placeholder="Product description"
+></textarea>
+
+
+<button class="save" onclick="saveProduct()">
+💾 Save Product
+</button>
+
+</div>
+</div>
+
+
+<!-- CART -->
+
+<div id="cartModal" class="modal">
+
+<div class="box">
+
+<button class="close"
+onclick="closeModal('cartModal')">
+✕
+</button>
+
+<h2>🛒 Your Cart</h2>
+
+<div id="cartItems"></div>
+
+<button class="save" onclick="orderCart()">
+📱 Order on WhatsApp
+</button>
+
+</div>
+</div>
+
+
+<script>
+
+const KEY="tsm_products_v1";
+const CART="tsm_cart_v1";
+
+let products=
+JSON.parse(localStorage.getItem(KEY)||"[]");
+
+let cart=
+JSON.parse(localStorage.getItem(CART)||"[]");
+
+let editId=null;
+let logged=false;
+
+
+/* DEMO PRODUCTS */
+
+const demo=[
+
+{
+id:1,
+name:"Stylish Casual T-Shirt",
+price:399,
+old:799,
+cat:"Fashion",
+image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=80",
+desc:"Comfortable everyday T-Shirt."
+},
+
+{
+id:2,
+name:"Wireless Earbuds",
+price:699,
+old:1499,
+cat:"Electronics",
+image:"https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=80",
+desc:"Compact wireless earbuds."
+},
+
+{
+id:3,
+name:"Kitchen Storage Set",
+price:499,
+old:999,
+cat:"Home & Kitchen",
+image:"https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=600&q=80",
+desc:"Useful kitchen storage containers."
+},
+
+{
+id:4,
+name:"Fashion Handbag",
+price:599,
+old:1199,
+cat:"Bags",
+image:"https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80",
+desc:"Stylish daily-use handbag."
+},
+
+{
+id:5,
+name:"Classic Watch",
+price:499,
+old:999,
+cat:"Watches",
+image:"https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=600&q=80",
+desc:"Classic everyday watch."
+},
+
+{
+id:6,
+name:"Kids Toy Car",
+price:349,
+old:699,
+cat:"Kids & Toys",
+image:"https://images.unsplash.com/photo-1594787318286-3d835c1d207f?auto=format&fit=crop&w=600&q=80",
+desc:"Fun toy for kids."
+}
+
+];
+
+
+if(!products.length){
+
+products=demo;
+
+save();
+
+}
+
+
+/* SAVE */
+
+function save(){
+
+localStorage.setItem(
+KEY,
+JSON.stringify(products)
+);
+
+}
+
+
+/* SAVE CART */
+
+function saveCart(){
+
+localStorage.setItem(
+CART,
+JSON.stringify(cart)
+);
+
+document.getElementById(
+"cartCount"
+).textContent=cart.length;
+
+}
+
+
+/* SHOW PRODUCTS */
+
+function render(){
+
+let q=
+document.getElementById("search")
+.value
+.toLowerCase();
+
+let selected=
+document.getElementById("category")
+.value;
+
+
+let cats=
+[...new Set(products.map(p=>p.cat))];
+
+
+document.getElementById("category").innerHTML=
+'<option value="">All Categories</option>'+
+cats.map(
+x=>`<option>${x}</option>`
+).join("");
+
+
+document.getElementById("category").value=
+selected;
+
+
+let list=
+products.filter(p=>
+
+(!q ||
+p.name.toLowerCase().includes(q))
+
+&&
+
+(!selected ||
+p.cat===selected)
+
+);
+
+
+document.getElementById("grid").innerHTML=
+
+list.length
+
+?
+
+list.map(p=>`
+
+<div class="card">
+
+<img
+class="pic"
+src="${p.image || 'https://via.placeholder.com/600x500?text=TSM+Product'}"
+onerror="this.src='https://via.placeholder.com/600x500?text=TSM+Product'"
+>
+
+<div class="info">
+
+<div class="cat">
+${p.cat}
+</div>
+
+<div class="name">
+${esc(p.name)}
+</div>
+
+<div class="price">
+₹${p.price}
+
+<span class="old">
+₹${p.old || ""}
+</span>
+
+</div>
+
+<p>
+${esc(p.desc || "")}
+</p>
+
+<button onclick="addCart(${p.id})">
+🛒 Add to Cart
+</button>
+
+${logged ? `
+
+<button
+class="secondary"
+onclick="editProduct(${p.id})">
+✏️ Edit
+</button>
+
+<button
+class="danger"
+onclick="deleteProduct(${p.id})">
+🗑️ Delete
+</button>
+
+` : ""}
+
+</div>
+
+</div>
+
+`).join("")
+
+:
+
+'<div class="empty">No products found.</div>';
+
+}
+
+
+/* SECURITY TEXT */
+
+function esc(s){
+
+return String(s).replace(
+/[&<>"']/g,
+
+m=>({
+
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#039;'
+
+}[m])
+
+);
+
+}
+
+
+/* ADMIN */
+
+function openAdmin(){
+
+document.getElementById(
+"adminModal"
+).style.display="block";
+
+}
+
+
+function login(){
+
+if(
+document.getElementById("adminPass").value
+==="1234"
+){
+
+logged=true;
+
+closeModal("adminModal");
+
+document.getElementById(
+"adminbar"
+).style.display="block";
+
+render();
+
+}else{
+
+alert("Wrong password");
+
+}
+
+}
+
+
+/* ADD PRODUCT */
+
+function openProduct(id=null){
+
+editId=id;
+
+document.getElementById(
+"formTitle"
+).textContent=
+id
+?"✏️ Edit Product"
+:"➕ Add Product";
+
+
+[
+"pName",
+"pPrice",
+"pOld",
+"pImage",
+"pDesc"
+].forEach(
+x=>document.getElementById(x).value=""
+);
+
+
+let p=
+products.find(x=>x.id===id);
+
+
+if(p){
+
+pName.value=p.name;
+
+pPrice.value=p.price;
+
+pOld.value=p.old||"";
+
+pCat.value=p.cat;
+
+pImage.value=p.image||"";
+
+pDesc.value=p.desc||"";
+
+}
+
+
+document.getElementById(
+"productModal"
+).style.display="block";
+
+}
+
+
+/* SAVE PRODUCT */
+
+function saveProduct(){
+
+let p={
+
+id:editId || Date.now(),
+
+name:pName.value.trim(),
+
+price:+pPrice.value,
+
+old:+pOld.value||0,
+
+cat:pCat.value,
+
+image:pImage.value.trim(),
+
+desc:pDesc.value.trim()
+
+};
+
+
+if(!p.name || !p.price){
+
+alert(
+"Product name aur selling price required hai."
+);
+
+return;
+
+}
+
+
+if(editId){
+
+products=
+products.map(
+x=>x.id===editId?p:x
+);
+
+}else{
+
+products.unshift(p);
+
+}
+
+
+save();
+
+closeModal("productModal");
+
+render();
+
+alert("✅ Product saved!");
+
+}
+
+
+/* EDIT */
+
+function editProduct(id){
+
+openProduct(id);
+
+}
+
+
+/* DELETE */
+
+function deleteProduct(id){
+
+if(confirm("Delete this product?")){
+
+products=
+products.filter(
+p=>p.id!==id
+);
+
+save();
+
+render();
+
+}
+
+}
+
+
+/* DELETE ALL */
+
+function clearProducts(){
+
+if(confirm(
+"Delete ALL products?"
+)){
+
+products=[];
+
+save();
+
+render();
+
+}
+
+}
+
+
+/* CART */
+
+function addCart(id){
+
+cart.push(id);
+
+saveCart();
+
+alert(
+"✅ Product cart mein add ho gaya!"
+);
+
+}
+
+
+function openCart(){
+
+let items=
+cart.map(
+id=>products.find(p=>p.id===id)
+).filter(Boolean);
+
+
+document.getElementById(
+"cartItems"
+).innerHTML=
+
+items.length
+
+?
+
+items.map(p=>`
+
+<p>
+<b>${esc(p.name)}</b>
+— ₹${p.price}
+</p>
+
+`).join("")
+
+:
+
+"<p>Your cart is empty.</p>";
+
+
+document.getElementById(
+"cartModal"
+).style.display="block";
+
+}
+
+
+/* WHATSAPP */
+
+function orderCart(){
+
+let items=
+cart.map(
+id=>products.find(p=>p.id===id)
+).filter(Boolean);
+
+
+if(!items.length){
+
+alert("Cart is empty");
+
+return;
+
+}
+
+
+let msg=
+"TSM Order\n\n"+
+
+items.map(
+p=>`${p.name} - ₹${p.price}`
+).join("\n")+
+
+"\n\nPlease send your Name, Mobile and Address.";
+
+
+window.open(
+"https://wa.me/?text="+
+encodeURIComponent(msg),
+"_blank"
+);
+
+}
+
+
+/* CLOSE */
+
+function closeModal(id){
+
+document.getElementById(id)
+.style.display="none";
+
+}
+
+
+/* BACKUP */
+
+function exportProducts(){
+
+let blob=
+new Blob(
+[JSON.stringify(products,null,2)],
+{type:"application/json"}
+);
+
+let a=
+document.createElement("a");
+
+a.href=
+URL.createObjectURL(blob);
+
+a.download=
+"tsm-products-backup.json";
+
+a.click();
+
+}
+
+
+/* RESTORE */
+
+function importProducts(){
+
+let i=
+document.createElement("input");
+
+i.type="file";
+
+i.accept=".json";
+
+
+i.onchange=e=>{
+
+let r=
+new FileReader();
+
+r.onload=()=>{
+
+try{
+
+products=
+JSON.parse(r.result);
+
+save();
+
+render();
+
+alert(
+"✅ Products restored!"
+);
+
+}catch{
+
+alert(
+"Invalid backup file"
+);
+
+}
+
+};
+
+r.readAsText(
+e.target.files[0]
+);
+
+};
+
+i.click();
+
+}
+
+
+saveCart();
+
+render();
+
+</script>
+
+</body>
+  </html>
